@@ -8,6 +8,7 @@ import numpy as np
 import pandas as pd
 import pydicom as dc
 import re
+from io import BytesIO
 
 # Constantes y tolerancias
 
@@ -151,4 +152,6 @@ if input_file1_raw is not None:
 if len(files1) > 0:
    #files1[0].decompress()
    st.write(files1[0].SliceThickness)
-   st.download_button('Download dcm', files1[0], file_name='aa.dcm')
+   out = BytesIO()
+   files1[0].save_as(out)
+   st.download_button('Download dcm', out, file_name='aa.dcm')
