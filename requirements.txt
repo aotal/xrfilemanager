@@ -1,5 +1,5 @@
 numpy
-python_gdcm
+python-gdcm
 pillow
 pandas
 pydicom
