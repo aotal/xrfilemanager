@@ -94,7 +94,7 @@ pygments
 pympler
 pyparsing
 pyrsistent
-python=3.9.12
+python
 python-dateutil
 python_abi
 pytz
