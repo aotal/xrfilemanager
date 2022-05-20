@@ -149,5 +149,5 @@ input_file1_raw = st.file_uploader(
 if input_file1_raw is not None:
     files1 = [dc.read_file(x) for x in input_file1_raw]
 if len(files1) > 0:
-   files1[0].decompress()
+   #files1[0].decompress()
    st.write(files1[0].SliceThickness)
