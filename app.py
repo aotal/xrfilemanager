@@ -148,7 +148,6 @@ input_file1_raw = st.file_uploader(
 #TC007_table_axial = np.zeros((1, 3))
 
 if input_file1_raw is not None:
-    files
     files1 = [dc.read_file(x) for x in input_file1_raw]
 if len(files1) > 0:
    files1[0].decompress()
