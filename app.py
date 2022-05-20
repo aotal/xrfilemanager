@@ -151,3 +151,4 @@ if input_file1_raw is not None:
 if len(files1) > 0:
    #files1[0].decompress()
    st.write(files1[0].SliceThickness)
+   st.download_button('Download dcm', files1[0], file_name='aa.dcm')
