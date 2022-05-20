@@ -3,7 +3,7 @@ import glob
 import os
 import struct
 from shutil import copyfile
-import gdcm
+#import gdcm
 
 import numpy as np
 import pandas as pd
