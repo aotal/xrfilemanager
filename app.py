@@ -154,5 +154,5 @@ if len(files1) > 0:
    st.write(files1[0].SliceThickness)
    out = BytesIO()
    a=files1[0].decompress()
-   files1[0].save_as(out)
+   a.save_as(a)
    st.download_button('Download dcm', a, file_name='aa.dcm')
