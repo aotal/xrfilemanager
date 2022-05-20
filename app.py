@@ -148,9 +148,13 @@ input_file1_raw = st.file_uploader(
 #TC007_table_axial = np.zeros((1, 3))
 
 if input_file1_raw is not None:
-    files1 = [dc.read_file(x) for x in input_file1_raw]
+    files1=[]
+    for x in input_file1_raw:
+        s=dc.read_file(x)
+        s.decompress()
+        files1.append(s)
+    #files1 = [dc.read_file(x) for x in input_file1_raw]
 if len(files1) > 0:
-   files1[0].decompress()
    out = BytesIO()
    files1[0].save_as(out)
    st.download_button('Download dcm',out, file_name='aa.dcm')
