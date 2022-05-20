@@ -151,8 +151,8 @@ if input_file1_raw is not None:
     files1 = [dc.read_file(x) for x in input_file1_raw]
 if len(files1) > 0:
    #files1[0].decompress()
-   st.write(files1[0].SliceThickness)
+   st.write(files1[0].pixel_data)
    out = BytesIO()
-   a=files1[0].decompress()
+   a=files1[0]
    a.save_as(a)
    st.download_button('Download dcm', a, file_name='aa.dcm')
