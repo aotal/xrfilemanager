@@ -1,6 +1,5 @@
 numpy
 python-gdcm
-gdcm
 pandas
 pydicom
 streamlit
