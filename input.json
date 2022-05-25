@@ -1,0 +1,42 @@
+{
+    "Corte": {
+        "value": "SliceLocation",
+        "type": "D",
+        "format":"float"
+    },
+    "Espesor": {
+        "value": "SliceThickness",
+        "type": "U",
+        "format":"float"
+    },
+    "KVP": {
+        "value": "KVP",
+        "type": "U",
+        "format":"float"
+    },
+    "Corriente": {
+        "value": "XRayTubeCurrent",
+        "type": "U",
+        "format":"float"
+    },
+    "Tipo": {
+        "value": "SpiralPitchFactor",
+        "type": "U",
+        "format":"float"
+    },
+    "Exposicion": {
+        "value": "Exposure",
+        "type": "U",
+        "format":"float"
+    },
+    "Pixel": {
+        "value": "PixelSpacing",
+        "type": "D",
+        "format":"float"
+    },
+    "Protocolo": {
+        "value": "BodyPartExamined",
+        "type": "U",
+        "format":"str"
+    }
+}

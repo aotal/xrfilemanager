@@ -10,6 +10,10 @@ import pandas as pd
 import pydicom as dc
 import re
 from io import BytesIO
+import json
+from st_aggrid import AgGrid
+from st_aggrid import GridUpdateMode, DataReturnMode
+from st_aggrid.grid_options_builder import GridOptionsBuilder
 
 # Constantes y tolerancias
 
@@ -55,6 +59,7 @@ lista = {
 
 # funciones
 
+
 def CambioEnLoader(nombre, fichero):
     if 'context' in st.session_state:
         if nombre in st.session_state.context:
@@ -63,6 +68,7 @@ def CambioEnLoader(nombre, fichero):
                     del st.session_state.context[nombre]
             else:
                 del st.session_state.context[nombre]
+
 
 def formatotput(X):
     if X.VR == "FD":
@@ -81,6 +87,15 @@ def formatotput(X):
     else:
         # return X.value.decode("ISO_IR 100")
         return X.value
+
+@st.cache(suppress_st_warning=True)
+def selectwidget(X, table, lista):
+    if lista[X]['type'] == 'U':
+        out = st.selectbox(X, pd.unique(table[X]))
+    elif lista[X]['type'] == 'D':
+        out = st.slider(X, float(table[X].min()), float(
+            table[X].max()), (float(table[X].min()), float(table[X].max())))
+    return out
 
 
 def CleanFiles(route, lista):
@@ -109,35 +124,39 @@ def CleanFiles(route, lista):
 
 def getTable(images, lista):
     output = []
-    for X in images:
-        img = dc.read_file(X)
+    for img in images:
         try:
             output.append(
                 # [NombreFichero(X)]
-                [X]
-                + [formatotput(img[lista[X]]) for X in lista.keys()]
+                [formatotput(img[lista[X]['value']]) for X in lista.keys()]
             )
         except:
             print("Valor no válido")
+    print({x:lista[x]['format'] for x in lista.keys()})
+    return pd.DataFrame(output, columns=list(lista.keys())).astype({x:lista[x]['format'] for x in lista.keys()})
 
-    return pd.DataFrame(output, columns=["Nombre"] + list(lista.keys())).astype(
-        {
-            "Corte": float,
-            "Espesor": float,
-            "KVP": float,
-            "Corriente": float,
-            "Tipo": float,
-            "Exposicion": str,
-            "Pixel": float,
-            "Kernel": str,
-            "Protocolo": str
-        }
-    )
 
+def FillArray(X):
+    files1 = []
+    for x in X:
+        try:
+            s = dc.read_file(x)
+            s.decompress()
+            files1.append(s)
+        except:
+            pass
+    return files1
 
 
 st.title('File Manager')
 
+# Barra lateral
+st.sidebar.header('Configuración de los filtros')
+json_fields_dcm = st.sidebar.file_uploader("JSON de configuración", [
+                                           'json'], False, key='json_fields_dcm', help='Fichero json donde se especifican los campos dicom que interesan para filtrar')
+if json_fields_dcm is not None:
+    with open(json_fields_dcm.name) as fp:
+        data_table = json.load(fp)
 
 # Espesor de corte
 
@@ -149,13 +168,36 @@ input_file1_raw = st.file_uploader(
 #TC007_table_axial = np.zeros((1, 3))
 
 if input_file1_raw is not None:
-    files1=[]
-    for x in input_file1_raw:
-        s=dc.read_file(x)
-        s.decompress()
-        files1.append(s)
+    files1 = FillArray(input_file1_raw)
     #files1 = [dc.read_file(x) for x in input_file1_raw]
-if len(files1) > 0:
-   out = BytesIO()
-   files1[0].save_as(out)
-   st.download_button('Download dcm',out, file_name='aa.dcm')
+if len(files1) > 0 and json_fields_dcm is not None:
+
+    TableMaster = getTable(files1, data_table)
+
+    gb = GridOptionsBuilder.from_dataframe(TableMaster)
+    # enables pivoting on all columns, however i'd need to change ag grid to allow export of pivoted/grouped data, however it select/filters groups
+    gb.configure_default_column(enablePivot=True, enableValue=True, enableRowGroup=True)
+    gb.configure_selection(selection_mode="multiple", use_checkbox=True)
+    gb.configure_side_bar()  # side_bar is clearly a typo :) should by sidebar
+    gridOptions = gb.build()
+
+
+    response = AgGrid(
+    TableMaster,
+    gridOptions=gridOptions,
+    enable_enterprise_modules=True,
+    update_mode=GridUpdateMode.MODEL_CHANGED,
+    data_return_mode=DataReturnMode.FILTERED_AND_SORTED,
+    fit_columns_on_grid_load=False,)
+
+    df = pd.DataFrame(response["selected_rows"])
+    st.dataframe(df)
+   #out = BytesIO()
+   # files1[0].save_as(out)
+   #st.download_button('Download dcm',out, file_name='aa.dcm')
+    # st.dataframe(TableMaster)
+    #widgets=[]
+    #for x in data_table.keys():
+    #    widgets.append(selectwidget(x, TableMaster, data_table))
+    #a = selectwidget('Corte', TableMaster, data_table)
+    #espesor=st.selectbox("Elegir espesor",pd.unique(TableMaster['Espesor']))

@@ -2,4 +2,5 @@ numpy
 python-gdcm
 pandas
 pydicom
+streamlit-aggrid
 streamlit
